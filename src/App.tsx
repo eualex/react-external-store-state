@@ -1,15 +1,20 @@
 import { useEffect, useState } from "react";
 import { Store, store } from "./store";
 
-function useStore() {
-  const [state, setState] = useState(store.getState())
-  useEffect(() => store.subscribe(setState), [])
-  return state
+type Selector<T, K = unknown> = (s: T) => K extends keyof T ? T[K] : T;
+
+function useStore<I>(
+  selector: Selector<Store, I> = (state) => state as ReturnType<Selector<Store, I>>
+) {
+  const [state, setState] = useState(selector(store.getState()));
+
+  useEffect(() => store.subscribe((state) => setState(selector(state))), []);
+
+  return state;
 }
 
 function DisplayValue({ item }: { item: keyof Store }) {
-  const store = useStore()
-  const value = store[item]
+  const value = useStore<typeof item>((state) => state[item]);
 
   return (
     <div>

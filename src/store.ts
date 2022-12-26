@@ -1,3 +1,5 @@
+export type Selector<T, K = unknown> = (state: T) => K extends keyof T ? T[K] : T 
+
 type Listener<T> = (state: T) => void
 
 export function createStore<T>(inicialStore: T) {
