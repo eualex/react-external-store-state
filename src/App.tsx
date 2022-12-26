@@ -1,16 +1,13 @@
-import { useEffect, useState } from "react";
-import { Store, store } from "./store";
-
-type Selector<T, K = unknown> = (s: T) => K extends keyof T ? T[K] : T;
+import { useEffect, useState, useSyncExternalStore } from "react";
+import { Selector, Store, store } from "./store";
 
 function useStore<I>(
-  selector: Selector<Store, I> = (state) => state as ReturnType<Selector<Store, I>>
+  selector: Selector<Store, I> = (state) =>
+    state as ReturnType<Selector<Store, I>>
 ) {
-  const [state, setState] = useState(selector(store.getState()));
-
-  useEffect(() => store.subscribe((state) => setState(selector(state))), []);
-
-  return state;
+  return useSyncExternalStore(store.subscribe, () =>
+    selector(store.getState())
+  );
 }
 
 function DisplayValue({ item }: { item: keyof Store }) {
